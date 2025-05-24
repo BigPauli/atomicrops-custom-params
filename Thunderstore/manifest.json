@@ -1,0 +1,9 @@
+{
+  "name": "CustomParams",
+  "version_number": "1.0.0",
+  "website_url": "",
+  "description": "API for adding completely custom items into the game. Join our discord for examples of how to use it.",
+  "dependencies": [
+    "BepInEx-BepInExPack_x86-5.4.2100"
+  ]
+}
