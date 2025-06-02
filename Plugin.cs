@@ -17,10 +17,11 @@ using Atomicrops.Game.ParamsSystem;
 using Atomicrops.Crops;
 using CustomParams;
 
-// TODO: TEST THIS HEAVILY. NOT SURE IF IT WORKS AT ALL
+// TODO: FIX ITEM NOT SHOWING UP PROBLEM IS LIKELY DUE TO ALLUPGRADES ATTRIBUTE
 
 namespace CustomParams
 {
+
     public static class MyPluginInfo
     {
         public const string PLUGIN_GUID = "pauli.plugin.CustomParams";
@@ -64,29 +65,9 @@ namespace CustomParams
             var harmony = new Harmony(MyPluginInfo.PLUGIN_GUID); // Creating a Harmony instance
             harmony.PatchAll(); // Apply all patches in the assembly
 
-            StartCoroutine(WaitForFriendDefLoader());
-            StartCoroutine(WaitForTurretDefLoader());
         }
 
-        public IEnumerator WaitForFriendDefLoader()
-        {
-            FriendDefLoader._init();
-            while (FriendDefLoader._map.Count == 0)
-            {
-                yield return (object)new WaitForSeconds(0.1f);
-            }
-            Upgrade.OnFriendDefLoaderInitialized();
-        }
 
-        public IEnumerator WaitForTurretDefLoader()
-        {
-            var turretLoader = SingletonScriptableObject<TurretDefLoader>.I;
-            while (turretLoader.Defs.Count == 0)
-            {
-                yield return (object)new WaitForSeconds(0.1f);
-            }
-            Upgrade.OnTurretDefLoaderInitialized(turretLoader);
-        }
     }
 
     [HarmonyPatch(typeof(UpgradeRunner), "ApplyUpgradeList")]
@@ -164,7 +145,7 @@ namespace CustomParams
                     }
                 }
             }
-            return false; // don't continue with the original method
+            return false;
         }
     }
 
@@ -183,13 +164,120 @@ namespace CustomParams
                 }
             }
         }
+
+        static void Postfix(GameData data, int seed, bool isDaily, int year, ProfileModel profile)
+        {
+            Upgrade.OnFriendDefLoaderInitialized();
+            Upgrade.OnSpouseDefLoaderInitialized();
+            Upgrade.OnTurretDefLoaderInitialized();
+
+            foreach (var item in Upgrade.FriendDefMap)
+            {
+                Plugin.Log.LogInfo($"{item.Key}: {item.Value}");
+            }
+            
+
+            Upgrade.AllUpgradeDefs.Clear();
+            foreach (var upgrade in Upgrade.AllUpgrades)
+            {
+                var upgradeDef = upgrade.GetOrCreateUpgradeDef();
+                if (upgradeDef != null)
+                {
+                    Upgrade.AllUpgradeDefs.Add(upgradeDef);
+                }
+            }
+
+            for (int i = 0; i < Upgrade.AllUpgrades.Count; i++)
+            {
+                if (Upgrade.AllUpgradeDefs[i] == null) continue;
+
+                LootCollection targetCollection = null;
+                LootCollectionIdsEnum pool = Upgrade.LootPools[i];
+
+                switch (pool)
+                {
+                    case LootCollectionIdsEnum.Main:
+                        targetCollection = data.MainLootCollection;
+                        break;
+                    case LootCollectionIdsEnum.Special:
+                        targetCollection = data.SpecialLootCollection;
+                        break;
+                    case LootCollectionIdsEnum.GoldenChest:
+                        targetCollection = data.GoldenChestLootCollection;
+                        break;
+                    case LootCollectionIdsEnum.DeerShop:
+                        targetCollection = data.DeerShopLootCollection;
+                        break;
+                    case LootCollectionIdsEnum.Crow:
+                        targetCollection = data.CrowLootCollection;
+                        break;
+                    case LootCollectionIdsEnum.CrowOregano:
+                        targetCollection = data.CrowOreganoLootCollection;
+                        break;
+                    case LootCollectionIdsEnum.CrowCropLeveling:
+                        targetCollection = data.CrowCropLevelingLootCollection;
+                        break;
+                    case LootCollectionIdsEnum.PowerSow:
+                        targetCollection = data.PowerSowLootCollection;
+                        break;
+                    case LootCollectionIdsEnum.GardenBed:
+                        targetCollection = data.GardenBedLootCollection;
+                        break;
+                    case LootCollectionIdsEnum.TreeUpgrades:
+                        targetCollection = data.TreeUpgradeCollection;
+                        break;
+                }
+
+                if (targetCollection != null)
+                {
+                    var lootsField = typeof(LootCollection).GetField("_loots", BindingFlags.NonPublic | BindingFlags.Instance);
+                    var loots = (List<ILootDef>)lootsField.GetValue(targetCollection);
+
+                    if (Upgrade.AllUpgrades[i].DoDebug)
+                    {
+                        loots.Insert(0, Upgrade.AllUpgradeDefs[i]);
+                    }
+                    else
+                    {
+                        System.Random rand = new System.Random(seed + Upgrade.AllUpgrades[i].Name.GetHashCode());
+                        int index = rand.Next(loots.Count + 1);
+                        loots.Insert(index, Upgrade.AllUpgradeDefs[i]);
+                    }
+
+                    lootsField.SetValue(targetCollection, loots);
+                }
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(MetaPrevRunRewardUtils), "GenerateRewardModelAndClearPorfileFlag")]
+    class MetaPrevRunRewardUtils_GenerateRewardModelAndClearPorfileFlag_Patch
+    {
+        static bool Prefix(ref MetaPrevRunRewardsModel __result)
+        {
+            if (Upgrade.DebugPresent == true) {
+                MetaPrevRunRewardsModel metaPrevRunRewardsModel = new MetaPrevRunRewardsModel();
+                metaPrevRunRewardsModel.Upgrades = new List<UpgradeDef>();
+
+                for (int i = 0; i < Upgrade.AllUpgrades.Count; i++)
+                {
+                    if (Upgrade.AllUpgrades[i].DoDebug == true)
+                    {
+                        metaPrevRunRewardsModel.Upgrades.Add(Upgrade.AllUpgradeDefs[i]);
+                    }
+                }
+                __result = metaPrevRunRewardsModel;
+                return false;
+            }
+
+            return true;
+        }
     }
 
     public class Upgrade
     {
-        private static List<Upgrade> _allUpgrades = new List<Upgrade>();
 
-        public static List<Upgrade> AllUpgrades { get => _allUpgrades; }
+        public static List<Upgrade> AllUpgrades = new List<Upgrade>();
         public static List<UpgradeDef> AllUpgradeDefs = new List<UpgradeDef>();
         private static List<LootCollectionIdsEnum> _lootPools = new List<LootCollectionIdsEnum>();
         public static List<LootCollectionIdsEnum> LootPools { get => _lootPools; }
@@ -198,11 +286,13 @@ namespace CustomParams
         private List<UpgradeParam> _upgradeParams = new List<UpgradeParam>();
         private LootDefProperties _lootDefProperties;
         public Sprite myCustomSprite;
-        private static Dictionary<string, FriendDef> FriendDefMap;
+        public static Dictionary<string, FriendDef> FriendDefMap = new Dictionary<string, FriendDef>();
         public bool UpgradeAddsFriends = false;
+        public List<string> FriendsToAddStr = new List<string>();
         public List<FriendDef> FriendsToAdd = new List<FriendDef>();
-        private static Dictionary<string, TurretDef> TurretDict = new Dictionary<string, TurretDef>();
+        public static Dictionary<string, TurretDef> TurretDefMap = new Dictionary<string, TurretDef>();
         public bool UpgradeAddsTurrets = false;
+        public List<string> TurretsToAddStr = new List<string>();
         public List<TurretDef> TurretsToAdd = new List<TurretDef>();
 
         public string Name;
@@ -210,6 +300,9 @@ namespace CustomParams
         public string ImageFilePath;
 
         public bool DoDebug = false;
+        public static bool DebugPresent = false;
+        private List<(Action actionMethod, Action cleanupMethod)> _pendingCustomParams = new();
+
 
 
         // before they are able to do anything, items require names, descriptions, and an image file path
@@ -220,14 +313,37 @@ namespace CustomParams
             this.ImageFilePath = imageFilePath;
 
         }
-        
-        public UpgradeDef CreateUpgradeDef() {
+
+        public UpgradeDef GetOrCreateUpgradeDef()
+        {
+            if (_upgradeDef != null)
+            {
+                return _upgradeDef;
+            }
+
+            // Safety checks for FriendDefs and TurretDefs being loaded
+            if (UpgradeAddsFriends && !FriendDefMap.ContainsKey("pig") && !FriendDefMap.ContainsKey("rue"))
+            {
+                Plugin.Log.LogWarning($"FriendDefMap not yet initialized for upgrade {Name}. Skipping creation.");
+                return null;
+            }
+
+            if (UpgradeAddsTurrets && TurretDefMap.Count == 0)
+            {
+                Plugin.Log.LogWarning($"TurretDefMap not yet initialized for upgrade {Name}. Skipping creation.");
+                return null;
+            }
+
+            this._addFriends();
+            this._addTurrets();
+
+
             // creating new instance of UpgradeDef
             _upgradeDef = ScriptableObject.CreateInstance<UpgradeDef>();
             _upgradeDef.name = this.Name;
             _upgradeDef.UpgradeType = UpgradeDef.UpgradeTypeEnum.Upgrade;
             _upgradeDef.Disabled = false;
-            _upgradeDef.MaxStacks = 1;
+            _upgradeDef.MaxStacks = 100;
             _upgradeDef.RemoveUpgradesWhenPickedUp = new List<UpgradeDef>();
             _upgradeDef.DoAddDependents = false;
             _upgradeDef.DependentCollection = LootCollectionIdsEnum.Main;
@@ -286,7 +402,7 @@ namespace CustomParams
             _lootDefProperties.AppendDescComposition = false;
             _lootDefProperties.DescCompJoinUseComma = false;
             _lootDefProperties.LocElementsForDescComposition = new List<LocElement>();
-            _lootDefProperties.Rarity = Atomicrops.Core.Loot.Rarity_.Common; // important
+            _lootDefProperties.Rarity = Atomicrops.Core.Loot.Rarity_.Common;
             _lootDefProperties.PrimaryBiome = 0;
             _lootDefProperties.LuckMult = 0f;
             _lootDefProperties.UseCustomCost = false;
@@ -344,6 +460,29 @@ namespace CustomParams
 
             // setting our new LootDefProperties to _upgradeDef
             _upgradeDef.LootProperties = _lootDefProperties;
+
+            // add any custom params to list of params
+            foreach (var (actionMethod, cleanupMethod) in _pendingCustomParams)
+            {
+                UpgradeParam myUpgradeParam = new UpgradeParam
+                {
+                    Path = $"#{this.Name}",
+                    Value = 1f,
+                    Action = UpgradeParam.Operation.Set
+                };
+
+                var fieldInfoMin = typeof(UpgradeParam).GetField("ValueMin", BindingFlags.NonPublic | BindingFlags.Instance);
+                fieldInfoMin?.SetValue(myUpgradeParam, 1f);
+                var fieldInfoMax = typeof(UpgradeParam).GetField("ValueMax", BindingFlags.NonPublic | BindingFlags.Instance);
+                fieldInfoMax?.SetValue(myUpgradeParam, 1f);
+
+                _upgradeParams.Add(myUpgradeParam);
+
+                GlobalActions.AddAction($"#{this.Name}", actionMethod, cleanupMethod);
+            }
+
+            // All custom params now fully registered
+            _pendingCustomParams.Clear();
 
             return _upgradeDef;
         }
@@ -427,32 +566,7 @@ namespace CustomParams
 
         public void AddCustomParam(Action actionMethod, Action cleanupMethod)
         {
-
-            // create new upgrade param
-            UpgradeParam myUpgradeParam = new UpgradeParam();
-
-            myUpgradeParam.Path = $"#{this.Name}";
-            myUpgradeParam.Value = 1f;
-            myUpgradeParam.Action = UpgradeParam.Operation.Set;
-
-            // use reflection to set valuemin valuemax
-            var fieldInfoMin = typeof(UpgradeParam).GetField("ValueMin", BindingFlags.NonPublic | BindingFlags.Instance);
-            if (fieldInfoMin != null)
-            {
-                fieldInfoMin.SetValue(myUpgradeParam, 1f);
-            }
-
-            var fieldInfoMax = typeof(UpgradeParam).GetField("ValueMax", BindingFlags.NonPublic | BindingFlags.Instance);
-            if (fieldInfoMax != null)
-            {
-                fieldInfoMax.SetValue(myUpgradeParam, 1f);
-            }
-
-            // append new param to list of params
-            this._upgradeParams.Add(myUpgradeParam);
-
-            // add custom param to GlobalActions for later use
-            GlobalActions.AddAction($"#{this.Name}", actionMethod, cleanupMethod);
+            _pendingCustomParams.Add((actionMethod, cleanupMethod));
         }
 
         public void AddUpgradeToLootPool(string pool)
@@ -496,7 +610,7 @@ namespace CustomParams
                     return;
             }
 
-            Upgrade._allUpgrades.Add(this);
+            Upgrade.AllUpgrades.Add(this);
             Upgrade._lootPools.Add(id);
 
         }
@@ -508,16 +622,25 @@ namespace CustomParams
 
             foreach (var item in friends)
             {
+
+                for (int i = 0; i < item.Value; i++)
+                {
+                    this.FriendsToAddStr.Add(item.Key);
+                }
+            }
+        }
+
+        public void _addFriends()
+        {
+            foreach (var friend in this.FriendsToAddStr)
+            {
                 try
                 {
-                    for (int i = 0; i < item.Value; i++)
-                    {
-                        this.FriendsToAdd.Add(FriendDefMap[item.Key]);
-                    }
+                    this.FriendsToAdd.Add(FriendDefMap[friend]);
                 }
                 catch (Exception e)
                 {
-                    Plugin.Log.LogError($"{e}\nFailed to add friend {item.Key}.\nOnly accepted values are bee, chickenweed, cow, pig, and dronerifler");
+                    Plugin.Log.LogError($"{e}\nFailed to add friend {friend}.\nOnly accepted values are bee, bee2, cow, cow2, pig, pig2, chickenweed, chickenweed2, dronerifler, alienpet, rue, borage, norman, waterchris, and furryosa");
                     return;
                 }
             }
@@ -525,111 +648,102 @@ namespace CustomParams
 
         public void AddTurrets(Dictionary<string, int> turrets)
         {
-            // TODO: FINISH THIS. MAKE THE TURRETDEFLIST A DICTIONARY ONCE YOU FIGURE OUT WHAT THE TURRETDEFS IN THE LIST ARE
             // 1 is turret, 2 is curret, 3 is scarecrow
 
             this.UpgradeAddsTurrets = true;
 
             foreach (var item in turrets)
             {
-                try
+
+                for (int i = 0; i < item.Value; i++)
                 {
-                    for (int i = 0; i < item.Value; i++)
-                    {
-                        this.TurretsToAdd.Add(TurretDict[item.Key]);
-                    }
-                }
-                catch (Exception e)
-                {
-                    Plugin.Log.LogError($"{e}\nFailed to add turret {item.Key}.\nOnly accepted values are turret, curret, and scarecrow");
-                    return;
+                    this.TurretsToAddStr.Add(item.Key);
                 }
             }
 
 
+        }
+
+        public void _addTurrets()
+        {
+            foreach (var turret in this.TurretsToAddStr)
+            {
+                try
+                {
+                    this.TurretsToAdd.Add(TurretDefMap[turret]);
+                }
+                catch (Exception e)
+                {
+                    Plugin.Log.LogError($"{e}\nFailed to add turret {turret}.\nOnly accepted values are turret, scarecrow, and curret");
+                    return;
+                }
+            }
         }
 
         public static void OnFriendDefLoaderInitialized()
         {
-            FriendDefMap = FriendDefLoader._map;
+            var configFriends = SingletonScriptableObject<ConfigGame>.I.Friends;
 
-            FriendDefMap.Add("AlienPet", FriendDefLoader.I.AlienPet);
+            FriendDefMap["bee"] = configFriends.FarmAnimalsLevel1[0];
+            FriendDefMap["chickenweed"] = configFriends.FarmAnimalsLevel1[1];
+            FriendDefMap["cow"] = configFriends.FarmAnimalsLevel1[2];
+            FriendDefMap["pig"] = configFriends.FarmAnimalsLevel1[3];
 
-            // TODO: ADD SPOUSES
+            FriendDefMap["bee2"] = configFriends.FarmAnimalsLevel2[0];
+            FriendDefMap["chickenweed2"] = configFriends.FarmAnimalsLevel2[1];
+            FriendDefMap["cow2"] = configFriends.FarmAnimalsLevel2[2];
+            FriendDefMap["pig2"] = configFriends.FarmAnimalsLevel2[3];
+
+            FriendDefMap["alienpet"] = configFriends.AlienPet;
+
+            FriendDefMap["drone"] = SingletonScriptableObject<ConfigGame>.I.Player.Robusta.DefaultFriends[0];
         }
 
-        public static void OnTurretDefLoaderInitialized(TurretDefLoader turretDefLoader)
+
+
+
+
+
+
+
+
+        public static void OnTurretDefLoaderInitialized()
         {
-            TurretDict.Add("turret", turretDefLoader.Defs[0]);
-            TurretDict.Add("curret", turretDefLoader.Defs[1]);
-            TurretDict.Add("scarecrow", turretDefLoader.Defs[2]);
+            var turretDefLoader = SingletonScriptableObject<TurretDefLoader>.I;
+
+            if (!TurretDefMap.ContainsKey("turret"))
+                TurretDefMap.Add("turret", turretDefLoader.Defs[0]);
+
+            if (!TurretDefMap.ContainsKey("curret"))
+                TurretDefMap.Add("curret", turretDefLoader.Defs[1]);
+
+            if (!TurretDefMap.ContainsKey("scarecrow"))
+                TurretDefMap.Add("scarecrow", turretDefLoader.Defs[2]);
         }
+
+        public static void OnSpouseDefLoaderInitialized()
+        {
+            var eligibles = SingletonScriptableObject<GameData>.I.Eligibles;
+            foreach (FriendDef spouse in eligibles._getall().Keys)
+            {
+                string key = spouse.Name.ToLower();
+                if (!FriendDefMap.ContainsKey(key))
+                {
+                    FriendDefMap[key] = spouse;
+                }
+            }
+        }
+
+
 
         public void ToggleDebug()
         {
             this.DoDebug = true;
+            Upgrade.DebugPresent = true;
             Plugin.Log.LogInfo($"Debug for {this.Name} is on!");
         }
 
 
-    }
-
-    [HarmonyPatch(typeof(LootCollection), MethodType.Constructor)]
-    [HarmonyPatch(new Type[] { typeof(LootCollectionDef), typeof(LootCollectionIdsEnum), typeof(int), typeof(bool), typeof(bool), typeof(bool) })]
-    class LootCollection_Constructor_Patch
-    {
-        static void Postfix(LootCollection __instance, LootCollectionDef collectionDef, LootCollectionIdsEnum id, int seed, bool doDlcCheck, bool isCrow, bool isClassic)
-        {
-
-
-            if (Upgrade.AllUpgradeDefs.Count == 0)
-            {
-                foreach (var def in Upgrade.AllUpgrades)
-                {
-                    Upgrade.AllUpgradeDefs.Add(def.CreateUpgradeDef());
-                }
-            }
-
-            for (int i = 0; i < Upgrade.AllUpgrades.Count; i++)
-        {
-            if (id == Upgrade.LootPools[i])
-            {
-                // get the private field_ loots using reflection
-                FieldInfo field = typeof(LootCollection).GetField("_loots", BindingFlags.NonPublic | BindingFlags.Instance);
-
-                if (field != null)
-                {
-                    // Get the current value of _loots
-                    List<ILootDef> loots = field.GetValue(__instance) as List<ILootDef>;
-
-                    if (loots != null)
-                    {
-                        // Use current millisecond combined with the hash code of the item's name as the seed for the Random object
-                        int randomSeed = DateTime.Now.Millisecond + Upgrade.AllUpgrades[i].Name.GetHashCode();
-                        System.Random rand = new System.Random(randomSeed);
-
-                        // calculate a random index between 0 and the count of items in the list
-                        int randomIndex = rand.Next(loots.Count);
-
-                        if (Upgrade.AllUpgrades[i].DoDebug == true)
-                        {
-                            // insert loots and beginning of loot table
-                            loots.Insert(0, Upgrade.AllUpgrades[i]._upgradeDef);
-                        }
-                        else
-                        {
-                            // insert myUpgrade at a random position if debugging is not turned on
-                            loots.Insert(randomIndex, Upgrade.AllUpgrades[i]._upgradeDef);
-                        }
-
-
-                        // Set the field's value to the new list
-                        field.SetValue(__instance, loots);
-                    }
-                }
-            }
-        }
-        }
     }
 
 }
