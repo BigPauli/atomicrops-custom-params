@@ -17,8 +17,6 @@ using Atomicrops.Game.ParamsSystem;
 using Atomicrops.Crops;
 using CustomParams;
 
-// TODO: FIX ITEM NOT SHOWING UP PROBLEM IS LIKELY DUE TO ALLUPGRADES ATTRIBUTE
-
 namespace CustomParams
 {
 
@@ -26,7 +24,7 @@ namespace CustomParams
     {
         public const string PLUGIN_GUID = "pauli.plugin.CustomParams";
         public const string PLUGIN_NAME = "CustomParams";
-        public const string PLUGIN_VERSION = "1.1.0";
+        public const string PLUGIN_VERSION = "2.0.0";
     }
 
     public class ActionContainer
@@ -51,19 +49,18 @@ namespace CustomParams
     }
 
 
-    // This class initializes your plugin and applies your Harmony patches.
     [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
     public class Plugin : BaseUnityPlugin
     {
-        public static BepInEx.Logging.ManualLogSource Log;  // For outside classes to log to the BepInEx console.
+        public static BepInEx.Logging.ManualLogSource Log;
 
         private void Awake()
         {
-            Log = Logger; // Initializes the logger
+            Log = Logger;
             Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
 
-            var harmony = new Harmony(MyPluginInfo.PLUGIN_GUID); // Creating a Harmony instance
-            harmony.PatchAll(); // Apply all patches in the assembly
+            var harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
+            harmony.PatchAll();
 
         }
 
@@ -88,10 +85,9 @@ namespace CustomParams
                             {
                                 string command = upgradeParam.Path;
 
-                                // New logic: Check for an action container.
                                 if (GlobalActions.Actions.TryGetValue(command, out ActionContainer actionContainer))
                                 {
-                                    actionContainer.Function?.Invoke(); // Invoke the main function
+                                    actionContainer.Function?.Invoke();
 
                                 }
                                 else
@@ -106,7 +102,7 @@ namespace CustomParams
                             continue;
                         }
 
-                        UpgradeRunner.FieldValueInfoItem fieldInfoAndValue = UpgradeRunner.GetFieldInfoAndValue(upgradeParam.Path, paramsObj); // this line here fails
+                        UpgradeRunner.FieldValueInfoItem fieldInfoAndValue = UpgradeRunner.GetFieldInfoAndValue(upgradeParam.Path, paramsObj);
                         if (fieldInfoAndValue.info.FieldType == typeof(int))
                         {
                             if (upgradeParam.Action == UpgradeParam.Operation.Add)
@@ -160,7 +156,7 @@ namespace CustomParams
                 {
                     ActionContainer actionContainer = actionPair.Value;
 
-                    actionContainer.Cleanup?.Invoke(); // Invoke the cleanup function
+                    actionContainer.Cleanup?.Invoke();
                 }
             }
         }
@@ -170,11 +166,6 @@ namespace CustomParams
             Upgrade.OnFriendDefLoaderInitialized();
             Upgrade.OnSpouseDefLoaderInitialized();
             Upgrade.OnTurretDefLoaderInitialized();
-
-            foreach (var item in Upgrade.FriendDefMap)
-            {
-                Plugin.Log.LogInfo($"{item.Key}: {item.Value}");
-            }
             
 
             Upgrade.AllUpgradeDefs.Clear();
@@ -472,9 +463,9 @@ namespace CustomParams
                 };
 
                 var fieldInfoMin = typeof(UpgradeParam).GetField("ValueMin", BindingFlags.NonPublic | BindingFlags.Instance);
-                fieldInfoMin?.SetValue(myUpgradeParam, 1f);
+                fieldInfoMin?.SetValue(myUpgradeParam, 0f);
                 var fieldInfoMax = typeof(UpgradeParam).GetField("ValueMax", BindingFlags.NonPublic | BindingFlags.Instance);
-                fieldInfoMax?.SetValue(myUpgradeParam, 1f);
+                fieldInfoMax?.SetValue(myUpgradeParam, 100f);
 
                 _upgradeParams.Add(myUpgradeParam);
 
@@ -520,13 +511,13 @@ namespace CustomParams
             var fieldInfoMin = typeof(UpgradeParam).GetField("ValueMin", BindingFlags.NonPublic | BindingFlags.Instance);
             if (fieldInfoMin != null)
             {
-                fieldInfoMin.SetValue(myUpgradeParam, value);
+                fieldInfoMin.SetValue(myUpgradeParam, 100f);
             }
 
             var fieldInfoMax = typeof(UpgradeParam).GetField("ValueMax", BindingFlags.NonPublic | BindingFlags.Instance);
             if (fieldInfoMax != null)
             {
-                fieldInfoMax.SetValue(myUpgradeParam, value);
+                fieldInfoMax.SetValue(myUpgradeParam, 0);
             }
 
             // append new param to list of params
@@ -698,13 +689,6 @@ namespace CustomParams
 
             FriendDefMap["drone"] = SingletonScriptableObject<ConfigGame>.I.Player.Robusta.DefaultFriends[0];
         }
-
-
-
-
-
-
-
 
 
         public static void OnTurretDefLoaderInitialized()
