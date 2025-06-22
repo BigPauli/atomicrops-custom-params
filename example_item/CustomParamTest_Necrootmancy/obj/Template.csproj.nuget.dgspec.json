@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Paul\\OneDrive\\Documents\\Atomicrops Mod Attempts\\CustomParamTest_Necrootmancy\\Template.csproj": {}
+    "C:\\Users\\Paul\\OneDrive\\Documents\\Atomicrops Mod Attempts\\CustomParams\\example_item\\CustomParamTest_Necrootmancy\\Template.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Paul\\OneDrive\\Documents\\Atomicrops Mod Attempts\\CustomParamTest_Necrootmancy\\Template.csproj": {
+    "C:\\Users\\Paul\\OneDrive\\Documents\\Atomicrops Mod Attempts\\CustomParams\\example_item\\CustomParamTest_Necrootmancy\\Template.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Paul\\OneDrive\\Documents\\Atomicrops Mod Attempts\\CustomParamTest_Necrootmancy\\Template.csproj",
+        "projectUniqueName": "C:\\Users\\Paul\\OneDrive\\Documents\\Atomicrops Mod Attempts\\CustomParams\\example_item\\CustomParamTest_Necrootmancy\\Template.csproj",
         "projectName": "Necrootmancy",
-        "projectPath": "C:\\Users\\Paul\\OneDrive\\Documents\\Atomicrops Mod Attempts\\CustomParamTest_Necrootmancy\\Template.csproj",
+        "projectPath": "C:\\Users\\Paul\\OneDrive\\Documents\\Atomicrops Mod Attempts\\CustomParams\\example_item\\CustomParamTest_Necrootmancy\\Template.csproj",
         "packagesPath": "C:\\Users\\Paul\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Paul\\OneDrive\\Documents\\Atomicrops Mod Attempts\\CustomParamTest_Necrootmancy\\obj\\",
+        "outputPath": "C:\\Users\\Paul\\OneDrive\\Documents\\Atomicrops Mod Attempts\\CustomParams\\example_item\\CustomParamTest_Necrootmancy\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Paul\\AppData\\Roaming\\NuGet\\NuGet.Config",

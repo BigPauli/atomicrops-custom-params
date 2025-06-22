@@ -289,6 +289,7 @@ namespace CustomParams
         public string Name;
         public string Description;
         public string ImageFilePath;
+        public Assembly creatorAssembly;
 
         public bool DoDebug = false;
         public static bool DebugPresent = false;
@@ -297,11 +298,12 @@ namespace CustomParams
 
 
         // before they are able to do anything, items require names, descriptions, and an image file path
-        public Upgrade(string name, string description, string imageFilePath)
+        public Upgrade(string name, string description, string imageFilePath, Assembly callingAssembly)
         {
             this.Name = name;
             this.Description = description;
             this.ImageFilePath = imageFilePath;
+            this.creatorAssembly = callingAssembly;
 
         }
 
@@ -421,9 +423,7 @@ namespace CustomParams
             _lootDefProperties.NoToolTipRegion = false;
             _lootDefProperties.ToolTipOffset = new Vector2(0, 0.3f);
 
-            string assemblyLocation = System.Reflection.Assembly.GetCallingAssembly().Location;
-            string directory = System.IO.Path.GetDirectoryName(assemblyLocation);
-            string filePath = System.IO.Path.Combine(directory, this.ImageFilePath);
+            string filePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(creatorAssembly.Location), this.ImageFilePath);
 
             byte[] imageBytes = System.IO.File.ReadAllBytes(filePath);
             Texture2D texture = new Texture2D(2, 2);

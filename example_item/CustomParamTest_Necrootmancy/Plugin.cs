@@ -3,6 +3,7 @@ using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using UnityEngine;
 using CustomParams;
 
@@ -40,7 +41,7 @@ namespace NecrootmancyMod
 
         private void RegisterUpgrade()
         {
-            Upgrade necrootmancy = new Upgrade("Necrootmancy", "Summon a root fighter on enemy kill.", "Necrootmancy.png");
+            Upgrade necrootmancy = new Upgrade("Necrootmancy", "Summon a root fighter on enemy kill.", "Necrootmancy.png", Assembly.GetExecutingAssembly());
 
             // Add various param types to ensure compatibility
             necrootmancy.AddVanillaParam("Player.Speed", 2f, "Multiply");

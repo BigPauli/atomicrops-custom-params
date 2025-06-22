@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "GNPk8ojavX2w/3m29T889ENlfyk4IS+7EH/BtL3SJtBBKUinFxsPwdqMCkUVIgRVM/wbhBC7sxnVkaNkMihaig==",
+  "dgSpecHash": "YIi7pkbAKgu/x509mCr/LwzGGg2R2kU1GzsJT+tHN8LHUPOgcnnL1jWhkiiurQ1v/3J7QfQXPKmULt9qziKUaQ==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Paul\\OneDrive\\Documents\\Atomicrops Mod Attempts\\CustomParamTest_Necrootmancy\\Template.csproj",
+  "projectFilePath": "C:\\Users\\Paul\\OneDrive\\Documents\\Atomicrops Mod Attempts\\CustomParams\\example_item\\CustomParamTest_Necrootmancy\\Template.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Paul\\.nuget\\packages\\bepinex.analyzers\\1.0.8\\bepinex.analyzers.1.0.8.nupkg.sha512",
     "C:\\Users\\Paul\\.nuget\\packages\\bepinex.baselib\\5.4.20\\bepinex.baselib.5.4.20.nupkg.sha512",
