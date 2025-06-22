@@ -421,7 +421,7 @@ namespace CustomParams
             _lootDefProperties.NoToolTipRegion = false;
             _lootDefProperties.ToolTipOffset = new Vector2(0, 0.3f);
 
-            string assemblyLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            string assemblyLocation = System.Reflection.Assembly.GetCallingAssembly().Location;
             string directory = System.IO.Path.GetDirectoryName(assemblyLocation);
             string filePath = System.IO.Path.Combine(directory, this.ImageFilePath);
 
