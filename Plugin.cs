@@ -511,13 +511,13 @@ namespace CustomParams
             var fieldInfoMin = typeof(UpgradeParam).GetField("ValueMin", BindingFlags.NonPublic | BindingFlags.Instance);
             if (fieldInfoMin != null)
             {
-                fieldInfoMin.SetValue(myUpgradeParam, 100f);
+                fieldInfoMin.SetValue(myUpgradeParam, value);
             }
 
             var fieldInfoMax = typeof(UpgradeParam).GetField("ValueMax", BindingFlags.NonPublic | BindingFlags.Instance);
             if (fieldInfoMax != null)
             {
-                fieldInfoMax.SetValue(myUpgradeParam, 0);
+                fieldInfoMax.SetValue(myUpgradeParam, value);
             }
 
             // append new param to list of params
@@ -540,13 +540,13 @@ namespace CustomParams
             var fieldInfoMin = typeof(UpgradeParam).GetField("ValueMin", BindingFlags.NonPublic | BindingFlags.Instance);
             if (fieldInfoMin != null)
             {
-                fieldInfoMin.SetValue(myUpgradeParam, 1f);
+                fieldInfoMin.SetValue(myUpgradeParam, -100f);
             }
 
             var fieldInfoMax = typeof(UpgradeParam).GetField("ValueMax", BindingFlags.NonPublic | BindingFlags.Instance);
             if (fieldInfoMax != null)
             {
-                fieldInfoMax.SetValue(myUpgradeParam, 1f);
+                fieldInfoMax.SetValue(myUpgradeParam, 100f);
             }
 
             // append new param to list of params
