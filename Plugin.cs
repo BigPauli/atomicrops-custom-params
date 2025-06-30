@@ -287,7 +287,7 @@ namespace CustomParams
         public List<string> TurretsToAddStr = new List<string>();
         public List<TurretDef> TurretsToAdd = new List<TurretDef>();
         public bool UpgradeAddsLoot = false;
-        public string UpgradeLootStr = null;
+        public string UpgradeLootStr = "None";
         public int UpgradeLootAmt = 0;
         public static Dictionary<string, InstantApplyLootDef> InstantApplyLootDefMap = new Dictionary<string, InstantApplyLootDef>();
 
@@ -751,6 +751,8 @@ namespace CustomParams
                     InstantApplyLootDefMap[def.name] = def;
                 }
             }
+
+            InstantApplyLootDefMap["None"] = null;
         }
 
 
