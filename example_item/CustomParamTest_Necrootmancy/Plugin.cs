@@ -44,6 +44,7 @@ namespace NecrootmancyMod
             Upgrade necrootmancy = new Upgrade("Necrootmancy", "Summon a root fighter on enemy kill.", "Necrootmancy.png", Assembly.GetExecutingAssembly());
 
             // Add various param types to ensure compatibility
+            // see wiki for valid vanilla params
             necrootmancy.AddVanillaParam("Player.Speed", 2f, "Multiply");
 
             // Add 2 of each friend
@@ -72,6 +73,11 @@ namespace NecrootmancyMod
             turrets.Add("curret", 10);
             turrets.Add("scarecrow", 10);
             necrootmancy.AddTurrets(turrets);
+
+            // add loot
+            // each item can only have one type of loot added
+            // see wiki for valid loot strings
+            necrootmancy.AddLoot("AddTime", 100);
 
             // Add custom param logic
             necrootmancy.AddCustomParam(NecrootmancyState.EnableDoNecrootmancy, NecrootmancyState.Cleanup);

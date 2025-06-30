@@ -1,6 +1,6 @@
 {
   "name": "CustomParams",
-  "version_number": "2.0.3",
+  "version_number": "2.0.4",
   "website_url": "https://github.com/BigPauli/atomicrops-custom-params",
   "description": "API for adding completely custom items into the game. Join our discord or check out the github wiki for examples of how to use it.",
   "dependencies": [

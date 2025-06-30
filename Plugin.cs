@@ -24,7 +24,7 @@ namespace CustomParams
     {
         public const string PLUGIN_GUID = "pauli.plugin.CustomParams";
         public const string PLUGIN_NAME = "CustomParams";
-        public const string PLUGIN_VERSION = "2.0.0";
+        public const string PLUGIN_VERSION = "2.0.4";
     }
 
     public class ActionContainer
@@ -166,6 +166,7 @@ namespace CustomParams
             Upgrade.OnFriendDefLoaderInitialized();
             Upgrade.OnSpouseDefLoaderInitialized();
             Upgrade.OnTurretDefLoaderInitialized();
+            Upgrade.OnInstantApplyLootDefLoaderInitialized();
             
 
             Upgrade.AllUpgradeDefs.Clear();
@@ -285,6 +286,10 @@ namespace CustomParams
         public bool UpgradeAddsTurrets = false;
         public List<string> TurretsToAddStr = new List<string>();
         public List<TurretDef> TurretsToAdd = new List<TurretDef>();
+        public bool UpgradeAddsLoot = false;
+        public string UpgradeLootStr = null;
+        public int UpgradeLootAmt = 0;
+        public static Dictionary<string, InstantApplyLootDef> InstantApplyLootDefMap = new Dictionary<string, InstantApplyLootDef>();
 
         public string Name;
         public string Description;
@@ -342,9 +347,9 @@ namespace CustomParams
             _upgradeDef.DependentCollection = LootCollectionIdsEnum.Main;
             _upgradeDef.Dependents = new List<UpgradeDef>();
             _upgradeDef.DependentsILoot = new List<SoDb2Item>();
-            _upgradeDef.DoInstantApply = false;
-            _upgradeDef.InstantApply = null;
-            _upgradeDef.InstantApplyAmount = 1;
+            _upgradeDef.DoInstantApply = this.UpgradeAddsLoot;
+            _upgradeDef.InstantApply = InstantApplyLootDefMap[this.UpgradeLootStr];
+            _upgradeDef.InstantApplyAmount = this.UpgradeLootAmt;
             _upgradeDef.DoRandomSelectInstantApply = false;
             _upgradeDef.InstantApplyRandomSelect = new List<InstantApplyLootDef>();
             _upgradeDef.DoAddSeeds = false;
@@ -529,24 +534,27 @@ namespace CustomParams
 
         public void AddVanillaParam(string param, bool value)
         {
+
+            float floatValue = value ? 1f : 0f;
+
             // create new upgrade param
             UpgradeParam myUpgradeParam = new UpgradeParam();
 
             myUpgradeParam.Path = param;
-            myUpgradeParam.Value = value ? 1f : 0f;
+            myUpgradeParam.Value = floatValue;
             myUpgradeParam.Action = UpgradeParam.Operation.Set;
 
             // use reflection to set ValueMin and ValueMax
             var fieldInfoMin = typeof(UpgradeParam).GetField("ValueMin", BindingFlags.NonPublic | BindingFlags.Instance);
             if (fieldInfoMin != null)
             {
-                fieldInfoMin.SetValue(myUpgradeParam, -100f);
+                fieldInfoMin.SetValue(myUpgradeParam, floatValue);
             }
 
             var fieldInfoMax = typeof(UpgradeParam).GetField("ValueMax", BindingFlags.NonPublic | BindingFlags.Instance);
             if (fieldInfoMax != null)
             {
-                fieldInfoMax.SetValue(myUpgradeParam, 100f);
+                fieldInfoMax.SetValue(myUpgradeParam, floatValue);
             }
 
             // append new param to list of params
@@ -671,6 +679,20 @@ namespace CustomParams
             }
         }
 
+        public void AddLoot(string lootType, int amount)
+        {
+            if (!this.UpgradeAddsLoot)
+            {
+                this.UpgradeAddsLoot = true;
+                this.UpgradeLootStr = lootType;
+                this.UpgradeLootAmt = amount;
+            }
+            else
+            {
+                Plugin.Log.LogError("Upgrades can only add one type of loot");
+            }
+        }
+
         public static void OnFriendDefLoaderInitialized()
         {
             var configFriends = SingletonScriptableObject<ConfigGame>.I.Friends;
@@ -717,6 +739,20 @@ namespace CustomParams
                 }
             }
         }
+
+        public static void OnInstantApplyLootDefLoaderInitialized()
+        {
+            var allDefs = InstantApplyLootDefLoader.GetAll();
+
+            foreach (var def in allDefs)
+            {
+                if (def != null && !string.IsNullOrEmpty(def.name) && !InstantApplyLootDefMap.ContainsKey(def.name))
+                {
+                    InstantApplyLootDefMap[def.name] = def;
+                }
+            }
+        }
+
 
 
 
