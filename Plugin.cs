@@ -430,6 +430,14 @@ namespace CustomParams
 
             string filePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(creatorAssembly.Location), this.ImageFilePath);
 
+            if (!System.IO.File.Exists(filePath))
+            {
+                filePath = System.IO.Path.Combine(
+                    System.IO.Directory.GetCurrentDirectory(),
+                    "default.png"
+                );
+            }
+
             byte[] imageBytes = System.IO.File.ReadAllBytes(filePath);
             Texture2D texture = new Texture2D(2, 2);
             if (UnityEngine.ImageConversion.LoadImage(texture, imageBytes))

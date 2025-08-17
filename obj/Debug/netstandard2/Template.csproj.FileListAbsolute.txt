@@ -145,6 +145,7 @@ C:\Users\Paul\OneDrive\Documents\Atomicrops Mod Attempts\CustomParams\atomicrops
 C:\Users\Paul\OneDrive\Documents\Atomicrops Mod Attempts\CustomParams\atomicrops-custom-params\obj\Debug\netstandard2\Template.AssemblyInfoInputs.cache
 C:\Users\Paul\OneDrive\Documents\Atomicrops Mod Attempts\CustomParams\atomicrops-custom-params\obj\Debug\netstandard2\Template.AssemblyInfo.cs
 C:\Users\Paul\OneDrive\Documents\Atomicrops Mod Attempts\CustomParams\atomicrops-custom-params\obj\Debug\netstandard2\Template.csproj.CoreCompileInputs.cache
-C:\Users\Paul\OneDrive\Documents\Atomicrops Mod Attempts\CustomParams\atomicrops-custom-params\obj\Debug\netstandard2\Template.csproj.CopyComplete
 C:\Users\Paul\OneDrive\Documents\Atomicrops Mod Attempts\CustomParams\atomicrops-custom-params\obj\Debug\netstandard2\CustomParams.dll
 C:\Users\Paul\OneDrive\Documents\Atomicrops Mod Attempts\CustomParams\atomicrops-custom-params\obj\Debug\netstandard2\CustomParams.pdb
+C:\Users\Paul\OneDrive\Documents\Atomicrops Mod Attempts\CustomParams\atomicrops-custom-params\obj\Debug\netstandard2\Template.sourcelink.json
+C:\Users\Paul\OneDrive\Documents\Atomicrops Mod Attempts\CustomParams\atomicrops-custom-params\obj\Debug\netstandard2\Template.csproj.Up2Date
