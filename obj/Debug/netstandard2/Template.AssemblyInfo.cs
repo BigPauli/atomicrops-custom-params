@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("My first plugin")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b1ff90ac178608ecca48bd174496f7fd046c75e1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f57df5c2b6898df72811c917646d9b1ce27ccf80")]
 [assembly: System.Reflection.AssemblyProductAttribute("CustomParams")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CustomParams")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

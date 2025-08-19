@@ -24,7 +24,7 @@ namespace CustomParams
     {
         public const string PLUGIN_GUID = "pauli.plugin.CustomParams";
         public const string PLUGIN_NAME = "CustomParams";
-        public const string PLUGIN_VERSION = "2.0.4";
+        public const string PLUGIN_VERSION = "2.0.7";
     }
 
     public class ActionContainer
@@ -433,7 +433,7 @@ namespace CustomParams
             if (!System.IO.File.Exists(filePath))
             {
                 filePath = System.IO.Path.Combine(
-                    System.IO.Directory.GetCurrentDirectory(),
+                    System.IO.Path.GetDirectoryName(typeof(Plugin).Assembly.Location),
                     "default.png"
                 );
             }

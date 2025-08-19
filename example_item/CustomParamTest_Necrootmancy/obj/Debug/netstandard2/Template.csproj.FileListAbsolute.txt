@@ -190,4 +190,4 @@ C:\Users\Paul\OneDrive\Documents\Atomicrops Mod Attempts\CustomParams\example_it
 C:\Users\Paul\OneDrive\Documents\Atomicrops Mod Attempts\CustomParams\example_item\CustomParamTest_Necrootmancy\bin\Debug\netstandard2\UnityEngine.UI.dll
 C:\Users\Paul\OneDrive\Documents\Atomicrops Mod Attempts\CustomParams\example_item\CustomParamTest_Necrootmancy\bin\Debug\netstandard2\UnityEngine.UIElementsModule.dll
 C:\Users\Paul\OneDrive\Documents\Atomicrops Mod Attempts\CustomParams\example_item\CustomParamTest_Necrootmancy\bin\Debug\netstandard2\UnityEngine.UIModule.dll
-C:\Users\Paul\OneDrive\Documents\Atomicrops Mod Attempts\CustomParams\example_item\CustomParamTest_Necrootmancy\obj\Debug\netstandard2\Template.csproj.CopyComplete
+C:\Users\Paul\OneDrive\Documents\Atomicrops Mod Attempts\CustomParams\example_item\CustomParamTest_Necrootmancy\obj\Debug\netstandard2\Template.csproj.Up2Date
